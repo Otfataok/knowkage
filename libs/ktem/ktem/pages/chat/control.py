@@ -17,11 +17,6 @@ logger = logging.getLogger(__name__)
 
 KH_DEMO_MODE = getattr(flowsettings, "KH_DEMO_MODE", False)
 KH_SSO_ENABLED = getattr(flowsettings, "KH_SSO_ENABLED", False)
-ASSETS_DIR = "/app/libs/ktem/ktem/assets/icons"
-if not os.path.isdir(ASSETS_DIR):
-    ASSETS_DIR = "libs/ktem/ktem/assets/icons"
-if not os.path.isdir(ASSETS_DIR):
-    ASSETS_DIR = "assets/icons"
 
 
 logout_js = """
@@ -55,22 +50,22 @@ class ConversationControl(BasePage):
         with gr.Row():
             title_text = "Диалоги" if not KH_DEMO_MODE else "Kotaemon Papers"
             gr.Markdown("## {}".format(title_text))
-          self.btn_toggle_dark_mode = gr.Button(
-    value="🌙",
+            self.btn_toggle_dark_mode = gr.Button(
+                value="🌙",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="toggle-dark-button",
             )
             self.btn_chat_expand = gr.Button(
-    value="⬜",
+                value="⛶",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="chat-expand-button",
             )
             self.btn_info_expand = gr.Button(
-    value="⬜",
+                value="⛶",
                 min_width=2,
                 scale=1,
                 size="sm",
@@ -118,24 +113,21 @@ class ConversationControl(BasePage):
 
             if not KH_DEMO_MODE:
                 self.btn_conversation_rn = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/rename.svg",
+                    value="✏️",
                     min_width=2,
                     scale=1,
                     size="sm",
                     elem_classes=["no-background", "body-text-color"],
                 )
                 self.btn_del = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/delete.svg",
+                    value="🗑️",
                     min_width=2,
                     scale=1,
                     size="sm",
                     elem_classes=["no-background", "body-text-color"],
                 )
                 self.btn_new = gr.Button(
-                    value="",
-                    icon=f"{ASSETS_DIR}/new.svg",
+                    value="➕",
                     min_width=2,
                     scale=1,
                     size="sm",
