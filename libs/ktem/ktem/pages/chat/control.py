@@ -17,9 +17,11 @@ logger = logging.getLogger(__name__)
 
 KH_DEMO_MODE = getattr(flowsettings, "KH_DEMO_MODE", False)
 KH_SSO_ENABLED = getattr(flowsettings, "KH_SSO_ENABLED", False)
-ASSETS_DIR = "assets/icons"
+ASSETS_DIR = "/app/libs/ktem/ktem/assets/icons"
 if not os.path.isdir(ASSETS_DIR):
     ASSETS_DIR = "libs/ktem/ktem/assets/icons"
+if not os.path.isdir(ASSETS_DIR):
+    ASSETS_DIR = "assets/icons"
 
 
 logout_js = """
