@@ -55,25 +55,22 @@ class ConversationControl(BasePage):
         with gr.Row():
             title_text = "Диалоги" if not KH_DEMO_MODE else "Kotaemon Papers"
             gr.Markdown("## {}".format(title_text))
-            self.btn_toggle_dark_mode = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/dark_mode.svg",
+          self.btn_toggle_dark_mode = gr.Button(
+    value="🌙",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="toggle-dark-button",
             )
             self.btn_chat_expand = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/expand.svg",
+    value="⬜",
                 scale=1,
                 size="sm",
                 elem_classes=["no-background", "body-text-color"],
                 elem_id="chat-expand-button",
             )
             self.btn_info_expand = gr.Button(
-                value="",
-                icon=f"{ASSETS_DIR}/expand.svg",
+    value="⬜",
                 min_width=2,
                 scale=1,
                 size="sm",
