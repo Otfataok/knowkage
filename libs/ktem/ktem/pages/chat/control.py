@@ -34,9 +34,9 @@ def is_conv_name_valid(name):
     """Check if the conversation name is valid"""
     errors = []
     if len(name) == 0:
-        errors.append("Name cannot be empty")
+        errors.append("Название не может быть пустым")
     elif len(name) > 40:
-        errors.append("Name cannot be longer than 40 characters")
+        errors.append("Название не может быть длиннее 40 символов")
 
     return "; ".join(errors)
 
@@ -51,7 +51,7 @@ class ConversationControl(BasePage):
 
     def on_building_ui(self):
         with gr.Row():
-            title_text = "Conversations" if not KH_DEMO_MODE else "Kotaemon Papers"
+            title_text = "Диалоги" if not KH_DEMO_MODE else "Kotaemon Papers"
             gr.Markdown("## {}".format(title_text))
             self.btn_toggle_dark_mode = gr.Button(
                 value="",
@@ -90,7 +90,7 @@ class ConversationControl(BasePage):
 
         self.conversation_id = gr.State(value="")
         self.conversation = gr.Dropdown(
-            label="Chat sessions",
+            label="Выберите диалог",
             choices=[],
             container=False,
             filterable=True,
@@ -102,7 +102,7 @@ class ConversationControl(BasePage):
         with gr.Row() as self._new_delete:
             self.cb_suggest_chat = gr.Checkbox(
                 value=False,
-                label="Suggest chat",
+                label="Предложить вопросы",
                 min_width=10,
                 scale=6,
                 elem_id="suggest-chat-checkbox",
@@ -111,7 +111,7 @@ class ConversationControl(BasePage):
             )
             self.cb_is_public = gr.Checkbox(
                 value=False,
-                label="Share this conversation",
+                label="Поделиться диалогом",
                 elem_id="is-public-checkbox",
                 container=False,
                 visible=not KH_DEMO_MODE and not KH_SSO_ENABLED,
@@ -145,7 +145,7 @@ class ConversationControl(BasePage):
                 )
             else:
                 self.btn_new = gr.Button(
-                    value="New chat",
+                    value="Новый чат",
                     min_width=120,
                     size="sm",
                     scale=1,
@@ -157,7 +157,7 @@ class ConversationControl(BasePage):
         if KH_DEMO_MODE:
             with gr.Row():
                 self.btn_demo_login = gr.Button(
-                    "Sign-in to create new chat",
+                    "Войдите для нового чата",
                     min_width=120,
                     size="sm",
                     scale=1,
@@ -172,7 +172,7 @@ class ConversationControl(BasePage):
                 self.btn_demo_login.click(None, js=_js_redirect)
 
                 self.btn_demo_logout = gr.Button(
-                    "Sign-out",
+                    "Выйти",
                     min_width=120,
                     size="sm",
                     scale=1,
@@ -181,16 +181,16 @@ class ConversationControl(BasePage):
 
         with gr.Row(visible=False) as self._delete_confirm:
             self.btn_del_conf = gr.Button(
-                value="Delete",
+                value="Удалить",
                 variant="stop",
                 min_width=10,
             )
-            self.btn_del_cnl = gr.Button(value="Cancel", min_width=10)
+            self.btn_del_cnl = gr.Button(value="Отмена", min_width=10)
 
         with gr.Row():
             self.conversation_rn = gr.Text(
-                label="(Enter) to save",
-                placeholder="Conversation name",
+                label="(Enter) сохранить",
+                placeholder="Название диалога",
                 container=True,
                 scale=5,
                 min_width=10,
@@ -201,8 +201,6 @@ class ConversationControl(BasePage):
     def load_chat_history(self, user_id):
         """Reload chat history"""
 
-        # In case user are admin. They can also watch the
-        # public conversations
         can_see_public: bool = False
         with Session(engine) as session:
             statement = select(User).where(User.id == user_id)
@@ -220,9 +218,6 @@ class ConversationControl(BasePage):
 
         options = []
         with Session(engine) as session:
-            # Define condition based on admin-role:
-            # - can_see: can see their conversations & public files
-            # - can_not_see: only see their conversations
             if can_see_public:
                 statement = (
                     select(Conversation)
@@ -234,13 +229,13 @@ class ConversationControl(BasePage):
                     )
                     .order_by(
                         Conversation.is_public.desc(), Conversation.date_created.desc()
-                    )  # type: ignore
+                    )
                 )
             else:
                 statement = (
                     select(Conversation)
                     .where(Conversation.user == user_id)
-                    .order_by(Conversation.date_created.desc())  # type: ignore
+                    .order_by(Conversation.date_created.desc())
                 )
 
             results = session.exec(statement).all()
@@ -259,7 +254,7 @@ class ConversationControl(BasePage):
     def new_conv(self, user_id):
         """Create new chat"""
         if user_id is None:
-            gr.Warning("Please sign in first (Settings → User Settings)")
+            gr.Warning("Сначала войдите (Настройки → Пользователь)")
             return None, gr.update()
         with Session(engine) as session:
             new_conv = Conversation(user=user_id)
@@ -275,11 +270,11 @@ class ConversationControl(BasePage):
     def delete_conv(self, conversation_id, user_id):
         """Delete the selected conversation"""
         if not conversation_id:
-            gr.Warning("No conversation selected.")
+            gr.Warning("Диалог не выбран")
             return None, gr.update()
 
         if user_id is None:
-            gr.Warning("Please sign in first (Settings → User Settings)")
+            gr.Warning("Сначала войдите (Настройки → Пользователь)")
             return None, gr.update()
 
         with Session(engine) as session:
@@ -308,8 +303,6 @@ class ConversationControl(BasePage):
                 name = result.name
                 is_conv_public = result.is_public
 
-                # disable file selection ids state if
-                # not the owner of the conversation
                 if user_id == result.user:
                     selected = result.data_source.get("selected", {})
                 else:
@@ -325,14 +318,12 @@ class ConversationControl(BasePage):
                 )
                 plot_history: list[dict] = result.data_source.get("plot_history", [])
 
-                # On initialization
-                # Ensure len of retrieval and messages are equal
                 retrieval_history = sync_retrieval_n_message(chats, retrieval_history)
 
                 info_panel = (
                     retrieval_history[-1]
                     if retrieval_history
-                    else "<h5><b>No evidence found.</b></h5>"
+                    else "<h5><b>Информация не найдена</b></h5>"
                 )
                 plot_data = plot_history[-1] if plot_history else None
                 state = result.data_source.get("state", STATE)
@@ -353,7 +344,6 @@ class ConversationControl(BasePage):
 
         indices = []
         for index in self._app.index_manager.indices:
-            # assume that the index has selector
             if index.selector is None:
                 continue
             if isinstance(index.selector, int):
@@ -402,7 +392,7 @@ class ConversationControl(BasePage):
             session.commit()
 
         history = self.load_chat_history(user_id)
-        gr.Info("Conversation renamed.")
+        gr.Info("Диалог переименован")
         return (
             gr.update(choices=history),
             conversation_id,
@@ -417,11 +407,11 @@ class ConversationControl(BasePage):
             return
 
         if user_id is None:
-            gr.Warning("Please sign in first (Settings → User Settings)")
+            gr.Warning("Сначала войдите (Настройки → Пользователь)")
             return gr.update(), ""
 
         if not conversation_id:
-            gr.Warning("No conversation selected.")
+            gr.Warning("Диалог не выбран")
             return gr.update(), ""
 
         with Session(engine) as session:
@@ -437,7 +427,7 @@ class ConversationControl(BasePage):
             session.add(result)
             session.commit()
 
-        gr.Info("Chat suggestions updated.")
+        gr.Info("Подсказки обновлены")
 
     def toggle_demo_login_visibility(self, user_api_key, request: gr.Request):
         try:
@@ -447,7 +437,7 @@ class ConversationControl(BasePage):
         except (ImportError, AssertionError):
             user = None
 
-        if user:  # or user_api_key:
+        if user:
             return [
                 gr.update(visible=True),
                 gr.update(visible=True),
